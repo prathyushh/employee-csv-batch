@@ -20,6 +20,9 @@ public class EmployeeItemProcessor implements ItemProcessor<EmployeeRequestDto, 
 		if (input.getName() == null || input.getName().isBlank()) {
 			errors.add("Name is mandatory");
 		}
+		if (input.getId() == null) {
+		    errors.add("Employee ID is mandatory");
+		}
 		if (input.getEmail() == null || input.getEmail().isBlank()) {
 			errors.add("Email is mandatory");
 		} else if (!EMAIL_PATTERN.matcher(input.getEmail()).matches()) {

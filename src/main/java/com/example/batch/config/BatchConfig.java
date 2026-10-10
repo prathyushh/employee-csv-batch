@@ -6,12 +6,12 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.Step;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.infrastructure.item.ItemProcessor;
-import org.springframework.batch.infrastructure.item.ItemWriter;
 import org.springframework.batch.infrastructure.item.file.FlatFileItemReader;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import com.example.batch.batch.EmployeeItemWriter;
 import com.example.batch.batch.EmployeeSkipListener;
 import com.example.batch.batch.FileValidationTasklet;
 import com.example.batch.dto.EmployeeRequestDto;
@@ -25,13 +25,13 @@ public class BatchConfig {
 	public Step fileValidationStep(JobRepository jobRepository, PlatformTransactionManager transactionManager,
 			FileValidationTasklet fileValidationTasklet) {
 		return new StepBuilder("fileValidationStep", jobRepository).tasklet(fileValidationTasklet, transactionManager)
-				.build();
+				.allowStartIfComplete(true).build();
 	}
 
 	@Bean
 	public Step employeeProcessingStep(JobRepository jobRepository, PlatformTransactionManager transactionManager,
 			FlatFileItemReader<EmployeeRequestDto> employeeReader,
-			ItemProcessor<EmployeeRequestDto, Employee> employeeProcessor, ItemWriter<Employee> employeeWriter,
+			ItemProcessor<EmployeeRequestDto, Employee> employeeProcessor, EmployeeItemWriter employeeWriter,
 			EmployeeSkipListener employeeSkipListener) {
 		return new StepBuilder("employeeProcessingStep", jobRepository).<EmployeeRequestDto, Employee>chunk(10)
 				.transactionManager(transactionManager).reader(employeeReader).processor(employeeProcessor)

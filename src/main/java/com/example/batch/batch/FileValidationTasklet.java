@@ -9,12 +9,15 @@ import org.springframework.batch.core.step.StepContribution;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.infrastructure.repeat.RepeatStatus;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import com.example.batch.exception.InvalidCsvFileException;
 
 @Component
 public class FileValidationTasklet implements Tasklet {
+	@Value("${app.csv.max-file-size}")
+	private org.springframework.util.unit.DataSize maxFileSize;
 	private static final String FILE_PATH = "input/employees.csv";
 	private static final List<String> EXPECTED_HEADERS = List.of("id", "name", "email", "salary");
 
@@ -23,6 +26,10 @@ public class FileValidationTasklet implements Tasklet {
 		ClassPathResource resource = new ClassPathResource(FILE_PATH);
 		if (!resource.exists()) {
 			throw new InvalidCsvFileException("CSV file not found.");
+		}
+		long fileSize = resource.contentLength();
+		if (fileSize > maxFileSize.toBytes()) {
+			throw new InvalidCsvFileException("CSV file exceeds the maximum allowed size of " + maxFileSize);
 		}
 		if (!FILE_PATH.endsWith(".csv")) {
 			throw new InvalidCsvFileException("File must be a CSV.");

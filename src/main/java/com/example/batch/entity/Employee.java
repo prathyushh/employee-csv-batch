@@ -1,4 +1,5 @@
 package com.example.batch.entity;
+
 import java.math.BigDecimal;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,9 +19,9 @@ import lombok.NoArgsConstructor;
 public class Employee {
 	@Id
 	private Long id;
-	@Column(name = "employee_number", nullable = false, unique = true)
+	@Column(nullable = false)
 	private String name;
-	@Column(name = "email", nullable = false, unique = true)
+	@Column(nullable = false, unique = true)
 	private String email;
 	@Column(nullable = false, precision = 19, scale = 2)
 	private BigDecimal salary;
