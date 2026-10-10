@@ -13,12 +13,20 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import com.example.batch.batch.EmployeeSkipListener;
+import com.example.batch.batch.FileValidationTasklet;
 import com.example.batch.dto.EmployeeRequestDto;
 import com.example.batch.entity.Employee;
 import com.example.batch.exception.InvalidEmployeeException;
 
 @Configuration
 public class BatchConfig {
+
+	@Bean
+	public Step fileValidationStep(JobRepository jobRepository, PlatformTransactionManager transactionManager,
+			FileValidationTasklet fileValidationTasklet) {
+		return new StepBuilder("fileValidationStep", jobRepository).tasklet(fileValidationTasklet, transactionManager)
+				.build();
+	}
 
 	@Bean
 	public Step employeeProcessingStep(JobRepository jobRepository, PlatformTransactionManager transactionManager,
@@ -32,7 +40,9 @@ public class BatchConfig {
 	}
 
 	@Bean
-	public Job employeeProcessingJob(JobRepository jobRepository, Step employeeProcessingStep) {
-		return new JobBuilder("employeeProcessingJob", jobRepository).start(employeeProcessingStep).build();
+	public Job employeeProcessingJob(JobRepository jobRepository, Step employeeProcessingStep,
+			Step fileValidationStep) {
+		return new JobBuilder("employeeProcessingJob", jobRepository).start(fileValidationStep)
+				.next(employeeProcessingStep).build();
 	}
 }
