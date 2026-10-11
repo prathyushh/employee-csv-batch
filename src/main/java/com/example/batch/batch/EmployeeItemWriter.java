@@ -46,11 +46,9 @@ public class EmployeeItemWriter implements ItemWriter<Employee> {
 		MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("ids", ids).addValue("emails", emails);
 		List<EmployeeKey> existingEmployees = jdbcTemplate.query(lookupSql, parameters,
 				(rs, rowNum) -> new EmployeeKey(rs.getLong("id"), normalizeEmail(rs.getString("email"))));
-
 		// Step 3: Store existing IDs and emails.
 		Set<Long> existingIds = new HashSet<>();
 		Set<String> existingEmails = new HashSet<>();
-
 		for (EmployeeKey existing : existingEmployees) {
 			existingIds.add(existing.id());
 			existingEmails.add(existing.email());
@@ -67,7 +65,6 @@ public class EmployeeItemWriter implements ItemWriter<Employee> {
 			}
 			employeesToInsert.add(employee);
 		}
-
 		// Step 5: Batch-insert the remaining employees.
 		if (!employeesToInsert.isEmpty()) {
 			jdbcEmployeeWriter.write(new Chunk<>(employeesToInsert));
