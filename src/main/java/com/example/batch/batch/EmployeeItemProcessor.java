@@ -16,17 +16,19 @@ public class EmployeeItemProcessor implements ItemProcessor<EmployeeRequestDto, 
 
 	@Override
 	public Employee process(EmployeeRequestDto input) {
+
 		/*
 		 * // simulate a failure at employee ID 15 if (input.getId() != null &&
 		 * input.getId() == 15L) { throw new
 		 * RuntimeException("Simulated failure for restart testing"); }
 		 */
+
 		List<String> errors = new ArrayList<>();
 		if (input.getName() == null || input.getName().isBlank()) {
 			errors.add("Name is mandatory");
 		}
 		if (input.getId() == null) {
-		    errors.add("Employee ID is mandatory");
+			errors.add("Employee ID is mandatory");
 		}
 		if (input.getEmail() == null || input.getEmail().isBlank()) {
 			errors.add("Email is mandatory");

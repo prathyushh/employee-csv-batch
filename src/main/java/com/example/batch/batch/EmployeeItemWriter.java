@@ -29,14 +29,13 @@ public class EmployeeItemWriter implements ItemWriter<Employee> {
 		if (chunk.isEmpty()) {
 			return;
 		}
-		// Step 1: Collect employee IDs and normalized emails.
 		Set<Long> ids = new HashSet<>();
 		Set<String> emails = new HashSet<>();
 		for (Employee employee : chunk.getItems()) {
 			ids.add(employee.getId());
 			emails.add(normalizeEmail(employee.getEmail()));
 		}
-		// Step 2: Find employees that already exist in the database.
+		// Find employees that already exist in the database.
 		String lookupSql = """
 				SELECT id, email
 				FROM employees
@@ -46,14 +45,14 @@ public class EmployeeItemWriter implements ItemWriter<Employee> {
 		MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("ids", ids).addValue("emails", emails);
 		List<EmployeeKey> existingEmployees = jdbcTemplate.query(lookupSql, parameters,
 				(rs, rowNum) -> new EmployeeKey(rs.getLong("id"), normalizeEmail(rs.getString("email"))));
-		// Step 3: Store existing IDs and emails.
+		// Store existing IDs and emails.
 		Set<Long> existingIds = new HashSet<>();
 		Set<String> existingEmails = new HashSet<>();
 		for (EmployeeKey existing : existingEmployees) {
 			existingIds.add(existing.id());
 			existingEmails.add(existing.email());
 		}
-		// Step 4: Filter out records already in the database.
+		// Filter out records already in the database.
 		List<Employee> employeesToInsert = new ArrayList<>();
 		for (Employee employee : chunk.getItems()) {
 			boolean duplicateId = existingIds.contains(employee.getId());
@@ -65,7 +64,7 @@ public class EmployeeItemWriter implements ItemWriter<Employee> {
 			}
 			employeesToInsert.add(employee);
 		}
-		// Step 5: Batch-insert the remaining employees.
+		// Batch-insert the remaining employees.
 		if (!employeesToInsert.isEmpty()) {
 			jdbcEmployeeWriter.write(new Chunk<>(employeesToInsert));
 			log.info("Submitted {} employees for batch insertion.", employeesToInsert.size());

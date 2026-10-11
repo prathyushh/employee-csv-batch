@@ -25,8 +25,8 @@ public class BatchJobRunner implements CommandLineRunner {
 			log.warn("Batch job execution is disabled.");
 			return;
 		}
-		// Manually provide the long job parameter here
-		long runId = 1003L;
+		// provide the long job parameter here
+		long runId = 1001L;
 		JobParameters jobParameters = new JobParametersBuilder().addLong("run.id", runId).toJobParameters();
 		JobExecution execution = jobOperator.start(employeeProcessingJob, jobParameters);
 		log.info("Job execution status: " + execution.getStatus());
